@@ -1,3 +1,12 @@
 body{
-    background-color: #ddf;
+    /*background-color: #ddf;*/
+    color: gray;
+    font-size: 14px;
+}
+.body_content{
+    width: 800px;
+    background-color: white;
+}
+.body_content_inner{
+    padding: 50px;
 }
