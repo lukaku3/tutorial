@@ -1,1 +1,13 @@
 {% extends 'layout.html' %}
+{% block title %}Index{% endblock %}
+{% block header %}
+<h1>sns</h1>
+<p class="caption">※グループのチェックをONにしてupdateすると、
+そのグループに登録されている利用者のメッセージだけが表示されます。</pc>
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}></li>{{ message }}</ul>
+    {% endfor %}
+{% endif %}
+{% endblock %}
