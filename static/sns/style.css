@@ -10,3 +10,12 @@ body{
 .body_content_inner{
     padding: 50px;
 }
+h1{
+    color:red;
+    opacity: 0.2;
+    font-size: 72pt;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    text-align: right;
+    line-height: 70px;
+}
