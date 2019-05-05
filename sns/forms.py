@@ -22,9 +22,8 @@ class GoodForm(forms.ModelForm):
         model = Good
         fields = ['owner','message']
 
-class SearchForm(forms.ModelForm):
-    class Meta:
-        search = forms.CharField(max_length=100)
+class SearchForm(forms.Form):
+    search = forms.CharField(max_length=100)
 
 class GroupCheckForm(forms.Form):
     def __init__(self, user, *args, **kwargs):
