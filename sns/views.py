@@ -149,5 +149,24 @@ def good(request):
 
 def get_your_group_message(owner, glist, find):
     (public_user,public_group) = get_public()
-    group = Group.objects.filter(Q(owner=owner)|Q(owner=public_user)).filter(title__in=glist)
-    pass
+    groups = Group.objects.filter(Q(owner=owner)|Q(owner=public_user)).filter(title__in=glist)
+    me_friends = Freiends.objects.filter(group__in=groups)
+    me_users = []
+    for f in me_friends:
+        me_users.append(f.user)
+    his_groups = Groups.objects.filter(owner__in=me_users)
+    his_friends = Friend.objects.filter(user=owner).filter(group__in=his_groups)
+    me_groups = []
+    for hf in his_friends:
+        me_groups.append(hf.group)
+    if find==None:
+        messages = Messages.objects.filter(Q(group__in=groups)|Q(group__in=me_groups))[:100]
+    else:
+        messages = Messages.objects.filter(Q(group__in=groups)|Q(group__in=me_groups)).filter(content__contains=find)[:100]
+    return messages
+
+def get_public():
+    public_user = User.objects.filter(username='public').first()
+    public_group = Group.objects.filter(owner=public_user).first()
+    return (public_user, public_group)
+
