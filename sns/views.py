@@ -102,11 +102,8 @@ def groups(request):
     return render(request, 'sns/groups.html', params)
 
 
-def get_public():
-    public_user = User.objects.filter(username='public').first()
-    public_group = Group.objects.filter(owner=public_user).first()
-    return (public_user, public_group)
 
+@login_required(login_url='/admin/login/')
 def add(request):
 
     pass
@@ -135,34 +132,73 @@ def post(request):
     }
     return render(request, 'sns/post.html', params)
 
+@login_required(login_url='/admin/login/')
 def creategroup(request):
-
     pass
 
-def share(request):
+@login_required(login_url='/admin/login/')
+def share(request, share_id):
+    share = Message.objects.get(id=share_id)
+    if request.method == 'POST':
+        gr_name = request.POST['groups']
+        content = request.POST['content']
+        group = Group.objects.filter(owner=request.user).filter(title=gr_name)
 
-    pass
+        if group == None:
+            (pub_user, group) = get_public()
+            msg = Message()
+            msg.owner = request.user
+            msg.group = group
+            msg.content = content
+            msg.share_id = share_id
+            msg.save()
+            share_msg = msg.get_share()
+            share_msg.share_count += 1
+            share_msg.save()
+            messages.success(request, 'メッセージをShareしました。')
+            return redirect(to='/sns')
 
-def good(request):
+    form = PostForm(request.user)
+    params = {
+        'login_user':request.user,
+        'form':form,
+        'share':share,
+    }
+    return render(request, 'sns/share.html', params)
+    
+@login_required(login_url='/admin/login/')
+def good(request, good_id):
+    good_msg = Message.objects.get(id=good_id)
+    is_good = Good.objects.filter(owner=request.user).filter(message=good_msg).count()
+    if is_good > 0:
+        messages.success(request, '既にメッセージにはGoodしています。')
+        return redirect(to='/sns')
 
-    pass
+    good_msg.good_count += 1
+    good_msg.save()
+    good = Good()
+    good.owner = request.user
+    good.message = good_msg
+    good.save()
+    messages.success(request, 'メッセージにGoodしました。')
+    return redirect(to='/sns')
 
 def get_your_group_message(owner, glist, find):
     (public_user,public_group) = get_public()
     groups = Group.objects.filter(Q(owner=owner)|Q(owner=public_user)).filter(title__in=glist)
-    me_friends = Freiends.objects.filter(group__in=groups)
+    me_friends = Friend.objects.filter(group__in=groups)
     me_users = []
     for f in me_friends:
         me_users.append(f.user)
-    his_groups = Groups.objects.filter(owner__in=me_users)
+    his_groups = Group.objects.filter(owner__in=me_users)
     his_friends = Friend.objects.filter(user=owner).filter(group__in=his_groups)
     me_groups = []
     for hf in his_friends:
         me_groups.append(hf.group)
     if find==None:
-        messages = Messages.objects.filter(Q(group__in=groups)|Q(group__in=me_groups))[:100]
+        messages = Message.objects.filter(Q(group__in=groups)|Q(group__in=me_groups))[:100]
     else:
-        messages = Messages.objects.filter(Q(group__in=groups)|Q(group__in=me_groups)).filter(content__contains=find)[:100]
+        messages = Message.objects.filter(Q(group__in=groups)|Q(group__in=me_groups)).filter(content__contains=find)[:100]
     return messages
 
 def get_public():
