@@ -20,7 +20,7 @@ def index(request):
             glist = []
             for item in request.POST.getlist('groups'):
                 glist.append(item)
-            messages = get_your_group_message(request,user, glist, None)
+            messages = get_your_group_message(request.user, glist, None)
         
         if request.POST['mode'] == '__search_form__':
             searchform = SearchForm()
@@ -29,7 +29,7 @@ def index(request):
             glist = [public_group]
             for item in gps:
                 glist.append(item)
-            messages = get_your_group_message(request,user, glist, request.POST['search'])
+            messages = get_your_group_message(request.user, glist, request.POST['search'])
 
         else:
             searchform = SearchForm()
@@ -38,7 +38,7 @@ def index(request):
             glist = [public_group]
             for item in gps:
                 glist.append(item)
-            messages = get_your_group_message(request,user, glist, None)
+            messages = get_your_group_message(request.user, glist, None)
 
     else:
         searchform = SearchForm()
@@ -115,9 +115,9 @@ def add(request):
 def post(request):
     if request.method == 'POST':
         gr_name = request.POST['groups']
-        content = reuqest.POST['content']
-        group = Group.objects.filter(owner=request.user).filter(title=gr_name)
-        if grouo == None:
+        content = request.POST['content']
+        group = Group.objects.filter(owner=request.user).filter(title=gr_name).first()
+        if group == None:
             (pub_user, group) = get_public()
         msg = Message()
         msg.owner = request.user
@@ -145,4 +145,9 @@ def share(request):
 
 def good(request):
 
+    pass
+
+def get_your_group_message(owner, glist, find):
+    (public_user,public_group) = get_public()
+    group = Group.objects.filter(Q(owner=owner)|Q(owner=public_user)).filter(title__in=glist)
     pass
