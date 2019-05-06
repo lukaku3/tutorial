@@ -105,8 +105,23 @@ def groups(request):
 
 @login_required(login_url='/admin/login/')
 def add(request):
-
-    pass
+    add_name = request.GET['name']
+    add_user = User.objects.filter(username=add_name).first()
+    if add_user == request.user:
+        messages.info(request, '自分自身をFriendに追加することはできません。')
+        return redirect(to='/sns')
+    (publc_user, public_group) = get_public()
+    frd_num = Friend.objects.filter(owner=request.user).filter(user=add_user)
+    if frd_num > 0:
+        messages.info(request, add_user.username + ' は既に登録されています。')
+        return redirect(to='/sns')
+    frd = Friend()
+    frd.owner = request.user
+    frd.uer = add_user
+    frd.group = public_group
+    frd.save()
+    messages.success(request, add_user.username + ' を追加しました。groupページに移動し、追加したFriendをメンバに設定してください')
+    return redirect(to='/sns')
 
 @login_required(login_url='/admin/login/')
 def post(request):
