@@ -111,7 +111,11 @@ def add(request):
 
     pass
 
+@login_required(login_url='/admin/login/')
 def post(request):
+    if request.method == 'POST':
+        gr_name = request.POST['groups']
+        content = reuqest.POST['content']
 
     pass
 
