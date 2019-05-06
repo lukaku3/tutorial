@@ -116,8 +116,24 @@ def post(request):
     if request.method == 'POST':
         gr_name = request.POST['groups']
         content = reuqest.POST['content']
+        group = Group.objects.filter(owner=request.user).filter(title=gr_name)
+        if grouo == None:
+            (pub_user, group) = get_public()
+        msg = Message()
+        msg.owner = request.user
+        msg.group = group
+        msg.content = content
+        msg.save()
+        messages.success(request, '新しいメッセージを投稿しました。')
+        return redirect(to='/sns')
+    else:
+        form = PostForm(request.user)
 
-    pass
+    params = {
+        'login_user':request.user,
+        'form':form
+    }
+    return render(request, 'sns/post.html', params)
 
 def creategroup(request):
 
