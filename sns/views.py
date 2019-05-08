@@ -157,21 +157,20 @@ def share(request, share_id):
     if request.method == 'POST':
         gr_name = request.POST['groups']
         content = request.POST['content']
-        group = Group.objects.filter(owner=request.user).filter(title=gr_name)
-
+        group = Group.objects.filter(owner=request.user).filter(title=gr_name).filter()
         if group == None:
             (pub_user, group) = get_public()
-            msg = Message()
-            msg.owner = request.user
-            msg.group = group
-            msg.content = content
-            msg.share_id = share_id
-            msg.save()
-            share_msg = msg.get_share()
-            share_msg.share_count += 1
-            share_msg.save()
-            messages.success(request, 'メッセージをShareしました。')
-            return redirect(to='/sns')
+        msg = Message()
+        msg.owner = request.user
+        msg.group = group
+        msg.content = content
+        msg.share_id = share.id
+        msg.save()
+        share_msg = msg.get_share()
+        share_msg.share_count += 1
+        share_msg.save()
+        messages.success(request, 'メッセージをShareしました。')
+        return redirect(to='/sns')
 
     form = PostForm(request.user)
     params = {
