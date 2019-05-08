@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 
 from .models import Message,Friend,Group,Good
-from .forms import GroupCheckForm,GroupSelectForm,SearchForm,CreateGroupForm,PostForm
+from .forms import GroupCheckForm,GroupSelectForm,SearchForm,CreateGroupForm,PostForm,FriendsForm
 
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
@@ -86,11 +86,11 @@ def groups(request):
                 vlist.append(item.user.username)
             messages.success(request, 'チェックされたFriendを' + sel_group + 'に登録しました。')
             groupsform = GroupSelectForm(request.user, {'groups':sel_group})
-            friendsform = FriendsForm(request.user, frieds=friends, vals=vlist)
+            friendsform = FriendsForm(request.user, friends=friends, vals=vlist)
 
     else:
         groupsform = GroupSelectForm(request.user)
-        friendsform = FriendsForm(request.user, frieds=friends, vals=[])
+        friendsform = FriendsForm(request.user, friends=friends, vals=[])
         sel_group = '-'
 
     createform = CreateGroupForm()
@@ -151,7 +151,11 @@ def post(request):
 
 @login_required(login_url='/admin/login/')
 def creategroup(request):
-    pass
+    gp = Group()
+    gp.owner = request.user
+    gp.save()
+    messages.info(request, '新しいGroupを作成しました。')
+    return redirect(to='/sns/group')
 
 @login_required(login_url='/admin/login/')
 def share(request, share_id):

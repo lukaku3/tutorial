@@ -39,7 +39,7 @@ class GroupSelectForm(forms.Form):
     def __init__(self, user, *args, **kwargs):
         super(GroupSelectForm, self).__init__(*args, **kwargs)
         self.fields['groups'] = forms.ChoiceField(
-            choices=[('-','-')] + [(item.title, item.titled) \
+            choices=[('-','-')] + [(item.title, item.title) \
                 for item in Group.objects.filter(owner=user)],
         )
 
@@ -49,7 +49,7 @@ class FriendsForm(forms.Form):
         self.fields['friends'] = forms.MultipleChoiceField(
             choices=[(item.user, item.user) for item in friends],
             widget=forms.CheckboxSelectMultiple(),
-            initial=fals
+            initial=vals
         )
 
 class CreateGroupForm(forms.Form):
