@@ -9,6 +9,8 @@ from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 # Create your views here.
 
+import pprint
+
 @login_required(login_url='/admin/login/')
 def index(request):
     (public_user, public_group) = get_public()
@@ -157,20 +159,29 @@ def share(request, share_id):
     if request.method == 'POST':
         gr_name = request.POST['groups']
         content = request.POST['content']
-        group = Group.objects.filter(owner=request.user).filter(title=gr_name).filter()
+        group = Group.objects.filter(owner=request.user).filter(title=gr_name).first()
+        import pprint
         if group == None:
             (pub_user, group) = get_public()
-        msg = Message()
-        msg.owner = request.user
-        msg.group = group
-        msg.content = content
-        msg.share_id = share.id
-        msg.save()
-        share_msg = msg.get_share()
-        share_msg.share_count += 1
-        share_msg.save()
-        messages.success(request, 'メッセージをShareしました。')
-        return redirect(to='/sns')
+        try:
+            msg = Message()
+            msg.owner = request.user
+            msg.group = group
+            msg.content = content
+            msg.share_id = share.id
+            msg.save()
+            share_msg = msg.get_share()
+            share_msg.share_count += 1
+            share_msg.save()
+            messages.success(request, 'メッセージをShareしました。')
+            return redirect(to='/sns')
+        except OSError as err:
+            print("OS error: {0}".format(err))
+        except ValueError:
+            print("Could not convert data to an integer.")
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+            raise
 
     form = PostForm(request.user)
     params = {
